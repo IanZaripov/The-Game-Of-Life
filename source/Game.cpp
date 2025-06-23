@@ -39,13 +39,13 @@ const int Game::GetHight() const {
 	return cells[0].size();
 }
 
-int Game::CountNeighbors(const int x,const int y) {
+int Game::CountNeighbors(const int x, const int y) {
 	int alive_neighbors = 0;
 	for (int i = 0; i < 8; i++) {
 		int dx = x + deltax[i];
 		int dy = y + deltay[i];
-		if (dx >= 0 && dy >= 0 && 
-			dx < cells.size() && dy < cells[0].size() 
+		if (dx >= 0 && dy >= 0 &&
+			dx < cells.size() && dy < cells[0].size()
 			&& cells[dx][dy]) {
 			alive_neighbors++;
 		}
@@ -57,31 +57,24 @@ void Game::DoSimulation() {
 	if (!is_simulation_Ranning) {
 		return;
 	}
-	for (int x = 0; x < cells.size(); x++) {
-		for (int y = 0; y < cells[0].size(); y++) {
-			if (x == 0 || x == cells.size() - 1 || y == 0 || y == cells[0].size() - 1) {
-				HandleCorners(x, y);
+	auto new_cells = cells;
+
+	for (size_t x = 0; x < cells.size(); ++x) {
+		for (size_t y = 0; y < cells[0].size(); ++y) {
+			int cnt_neighbors = CountNeighbors(x, y);
+
+			if (cells[x][y]) {
+				new_cells[x][y] = (cnt_neighbors == 2 || cnt_neighbors == 3);
 			}
 			else {
-				int cnt_neighbors = CountNeighbors(x, y);
-				if (cells[x][y]) {
-					if (cnt_neighbors != 2 && cnt_neighbors != 3) {
-						cells[x][y] = false;
-					}
-				}
-				else {
-					if (cnt_neighbors == 3) {
-						cells[x][y] = true;
-					}
-				}
+				new_cells[x][y] = (cnt_neighbors == 3);
 			}
 		}
 	}
+
+	cells = std::move(new_cells);
 }
 
-void Game::HandleCorners(const int x, const int y) {
-	return;
-}
 
 void Game::Start() {
 	is_simulation_Ranning = true;
